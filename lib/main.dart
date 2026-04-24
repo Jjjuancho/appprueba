@@ -45,6 +45,44 @@ class _ListaProductosState extends State<ListaProductos> {
   final TextEditingController controladorPrecio = TextEditingController();
   final TextEditingController controladorStock = TextEditingController();
 
+  // Dentro de el state de la funcion
+
+  void eliminar(int index){
+      showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            title: Text("¿Estás seguro que queres eliminar este producto?"),
+            content: Text("Esta acción no se puede deshacer."),
+            actions: [
+
+              // Boton cancelar
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Cancelar")
+              ),
+              
+
+              // Boton de confirmar y eliminar
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    inventario.removeAt(index);
+                  });
+                  Navigator.pop(context);
+                },
+                child: Text("Confirmar y eliminar")
+              ),
+            ],
+          ); 
+        }
+      );
+    }
+
+  // Antes de construir UI
+
   Widget build(BuildContext context) {
 
     return Scaffold(
@@ -149,7 +187,7 @@ class _ListaProductosState extends State<ListaProductos> {
               itemCount: inventario.length,
               itemBuilder: (BuildContext context, int index) {
                 final insumoActual = inventario[index];
-                return TarjetaProducto(insumo: insumoActual);
+                return TarjetaProducto(insumo: insumoActual, onEditar: () {}, onEliminar: () => eliminar(index));
               }
             ),
           )
@@ -191,8 +229,12 @@ Insumo(nombre: 'Monitor 24" Full HD Samsung', precio: '180000', stock: '4'),
 
 // Clase del container
 class TarjetaProducto extends StatelessWidget {
+
+  final VoidCallback onEliminar;
+  final VoidCallback onEditar;
+
   final Insumo insumo;
-  const TarjetaProducto({super.key, required this.insumo});
+  const TarjetaProducto({super.key, required this.insumo, required this.onEliminar, required this.onEditar});
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +263,9 @@ class TarjetaProducto extends StatelessWidget {
               Text('${insumo.precio}', style: TextStyle(fontSize: 16, color: Colors.grey[700])),
               Text('${insumo.stock}', style: TextStyle(fontSize: 14, color: Colors.white)),
             ],
-          ))
+          )),
+          IconButton(onPressed: onEditar, icon: Icon(Icons.edit, color: Colors.blue)),
+          IconButton(onPressed: onEliminar, icon: Icon(Icons.delete, color: Colors.redAccent))
         ],
       ),
     );
