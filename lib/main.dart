@@ -1,4 +1,6 @@
 // ignore_for_file: deprecated_member_use
+import 'package:appprueba/models/insumo.dart';
+import 'package:appprueba/widgets/tarjeta_producto.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -45,6 +47,8 @@ class _ListaProductosState extends State<ListaProductos> {
   final TextEditingController controladorPrecio = TextEditingController();
   final TextEditingController controladorStock = TextEditingController();
 
+  bool errorNombre = false;
+
   // Dentro de el state de la funcion
 
   void eliminar(int index){
@@ -72,6 +76,12 @@ class _ListaProductosState extends State<ListaProductos> {
                     inventario.removeAt(index);
                   });
                   Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Producto eliminado correctamente.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
                 },
                 child: Text("Confirmar y eliminar")
               ),
@@ -105,9 +115,10 @@ class _ListaProductosState extends State<ListaProductos> {
 
                   child: TextField(
                     controller: controladorNombre,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Nombre del producto',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
+                      errorText: errorNombre ? "El nombre es necesario" : null,
                     ),
                   ),
                 ),
@@ -141,7 +152,7 @@ class _ListaProductosState extends State<ListaProductos> {
                 const SizedBox(width: 15),
                 
                 SizedBox(
-                  height: 55, 
+                  height: 55,
                   child: ElevatedButton.icon(
                     onPressed: () {
 
@@ -161,8 +172,14 @@ class _ListaProductosState extends State<ListaProductos> {
                           controladorNombre.clear();
                           controladorPrecio.clear();
                           controladorStock.clear();
+
+                          errorNombre = false;
                         });
 
+                      }else{
+                        setState(() {
+                          errorNombre = true;
+                        });
                       }
                     },
                     icon: const Icon(Icons.add, color: Colors.white),
@@ -207,67 +224,9 @@ class _ListaProductosState extends State<ListaProductos> {
   } 
 }
 
-// Clase Insumo
-class Insumo {
-  String nombre;
-  String precio;
-  String stock;
-
-  Insumo({
-    required this.nombre,
-    required this.precio,
-    required this.stock,
-  });
-}
-
 // Lista de productos, lista de instancia de Insumo
 List<Insumo> inventario = [
 Insumo(nombre: 'Teclado Mecánico Redragon', precio: '45000', stock: '15'),
 Insumo(nombre: 'Mouse Inalámbrico Logitech', precio: '22000', stock: '8'),
 Insumo(nombre: 'Monitor 24" Full HD Samsung', precio: '180000', stock: '4'),
 ];
-
-// Clase del container
-class TarjetaProducto extends StatelessWidget {
-
-  final VoidCallback onEliminar;
-  final VoidCallback onEditar;
-
-  final Insumo insumo;
-  const TarjetaProducto({super.key, required this.insumo, required this.onEliminar, required this.onEditar});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-      padding: EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.blueGrey[300],
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4)
-          )
-        ]
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.inventory_2, size: 40, color: Colors.blueAccent),
-          const SizedBox(width: 15),
-          Expanded(child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(insumo.nombre, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Text('${insumo.precio}', style: TextStyle(fontSize: 16, color: Colors.grey[700])),
-              Text('${insumo.stock}', style: TextStyle(fontSize: 14, color: Colors.white)),
-            ],
-          )),
-          IconButton(onPressed: onEditar, icon: Icon(Icons.edit, color: Colors.blue)),
-          IconButton(onPressed: onEliminar, icon: Icon(Icons.delete, color: Colors.redAccent))
-        ],
-      ),
-    );
-  }
-}
